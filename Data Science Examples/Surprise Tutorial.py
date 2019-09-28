@@ -50,14 +50,15 @@ print(iids50)
 
 
 # Remove the iids that uid50 has rated from the list of all movie ids
-iids_to_pred = np.setdiff1d(iids, iids50)
-print("Displaying iids_to_pred")
-print(iids_to_pred)
-print(type(iids_to_pred))
-iid_column = iids_to_pred['iid'].tolist()
-print(type(iid_column))
-print(iid_column)
-
+#iids_to_pred = np.setdiff1d(iids, iids50)
+#print("Displaying iids_to_pred")
+#print(iids_to_pred)
+#print(type(iids_to_pred))
+#iid_column = iids_to_pred.tolist()
+#print(type(iid_column))
+#print("iids_to_list")
+#print(iid_column)
+#iid_column
 
 
 # print ("--------------------------------------------------")
@@ -69,25 +70,27 @@ print(iid_column)
 #    print("++++++++++++")
 #print(iids_to_pred)
 ##
-testset = [[50, iid, 4.] for iid in iids_to_pred]
-print("Displaying testset")
-print(testset)
+#testset = [[50, iid, 4.] for iid in iid_column]
+#print("Displaying testset")
+#print(testset)
 
 
-#dataset50 = dataset.loc[dataset['uid']==50] 
-#print("Displaying dataset50")
-#print(dataset50)
-#
-#datasetNOT50 = dataset.loc[dataset['uid']!=50] 
-#print("Displaying datasetNOT50")
-#print(datasetNOT50)
-#datasetNOT50['uid'] = 50
-#datasetNOT50['rating'] = 4
-#print("Displaying datasetNOT50 with uid of 50")
-#print(datasetNOT50)
+dataset50 = dataset.loc[dataset['uid']==50] 
+print("Displaying dataset50")
+print(dataset50)
 
+datasetNOT50 = dataset.loc[dataset['uid']!=50] 
+print("Displaying datasetNOT50")
+print(datasetNOT50)
+datasetNOT50['uid'] = 50
+datasetNOT50['rating'] = 4
+print("Displaying datasetNOT50 with uid of 50")
+val = datasetNOT50.values
+print(val)
 
-
+iids_to_pred = datasetNOT50['iid']
+print("Displaying iids_to_pred")
+print(iids_to_pred)
 
 # testset = dataset50.loc[ dataset50['iid'].isin(iids_to_pred) ]
 # print("Displaying Testset")
@@ -104,16 +107,28 @@ print(testset)
     
 
 #print(testset) # Extra line added
-predictions = alg.test(testset)  # datasetNOT50
-#print(predictions[0])
+predictions = alg.test(val)  # datasetNOT50
+print("Evaluating on test data")
+print(predictions[0])
+
+# Find the index of the maximum predicted rating
+pred_ratings = np.array([pred.est for pred in predictions])
+print(pred_ratings)
+
+# Find the corresponding iid to recommend
+i_max = pred_ratings.argmax()
+print("i_max is: ", i_max)
+
+iid = iids_to_pred[i_max]
+print("Top item for user 50 has iid {0} with predicted rating {1}".format(iid, pred_ratings[i_max]))
 
 # UNCOMMENT THE BELOW LINES LATER
 
-#param_grid = {'lr_all' : [.001, .01], 'reg_all' : [.1, .5]}
-#gs = surprise.model_selection.GridSearchCV(surprise.SVDpp, param_grid, measures=['rmse','mae'], cv=3)
-#gs.fit(data)
-##Print combination of parameters that give best RMSE score
-#print(gs.best_params['rmse'])
-#
-#alg = surprise.SVDpp(lr_all = 0.001) # parameter choices can be added here.
-#output = surprise.model_selection.cross_validate(alg, data, verbose = True)
+param_grid = {'lr_all' : [.001, .01], 'reg_all' : [.1, .5]}
+gs = surprise.model_selection.GridSearchCV(surprise.SVDpp, param_grid, measures=['rmse','mae'], cv=3)
+gs.fit(data)
+#Print combination of parameters that give best RMSE score
+print(gs.best_params['rmse'])
+
+alg = surprise.SVDpp(lr_all = 0.001) # parameter choices can be added here.
+output = surprise.model_selection.cross_validate(alg, data, verbose = True)
