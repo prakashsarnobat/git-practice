@@ -1,0 +1,26 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Sep 28 15:44:37 2019
+
+@author: Sridhar Sanobat
+"""
+
+from surprise import KNNBasic
+from surprise import Dataset
+
+# Load the movielens-100k dataset
+data = Dataset.load_builtin('ml-100k')
+
+# Retrieve the trainset.
+trainset = data.build_full_trainset()
+
+# Build an algorithm, and train it.
+algo = KNNBasic()
+algo.fit(trainset)
+
+
+uid = str(196)  # raw user id (as in the ratings file). They are **strings**!
+iid = str(302)  # raw item id (as in the ratings file). They are **strings**!
+
+# get a prediction for specific users and items.
+pred = algo.predict(uid, iid, r_ui=4, verbose=True)
